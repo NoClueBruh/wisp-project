@@ -1,0 +1,144 @@
+typedef enum (
+    INT,
+    STRING,
+    LITERAL,
+    SYMBOL,
+    EOF
+) ttype;
+
+typedef struct (
+    string input,
+    int index,
+
+    ttype   tkn_type,
+    any     tkn_data
+) scanner;
+
+const strequals = L. string s1, string s2: (
+    if s1.length != s2.length then 
+        false 
+    else ( 
+        alias len = s1.length in 
+
+        let internal: int -> bool = L. int i: (
+            if i >= len then
+                true 
+            else if s1[i] != s2[i] then 
+                false 
+            else 
+                internal(i + 1) 
+        ) 
+        in internal(0)
+    )
+);
+
+@private
+const char_isdigit: char -> bool = L. char c: c as int >= '0' as int && c as int <= '9' as int;
+
+@private
+const char_symbol: char -> bool = L. char c: 
+    (c as int >= '!' as int && c as int <= '@' as int) ||
+    (c as int >= '[' as int && c as int <= '`' as int) ||
+    (c as int >= '{' as int && c as int <= '~' as int);
+
+@private
+const joinsymbols: [char, char] -> bool = L. char a, char b: (
+    if a == b then 
+        a == '&' || a == '|'
+    else 
+        false
+);
+
+@private
+const char_wchar: char -> bool = L. char c: 
+    (c as int >= 'a' as int && c as int <= 'z' as int) ||
+    (c as int >= 'A' as int && c as int <= 'Z' as int) || c == '_';
+
+const scan_new: string -> scanner = 
+    L. string input: (input, 0, ttype.INT, 0 as any);
+
+const scan_eof: scanner -> bool = 
+    L. scanner scan: scan.tkn_type == ttype.EOF;
+
+@private
+const scan_skipspaces: scanner -> scanner = L. scanner scan: (
+    let internal: int -> int = L. int idx: (
+        if idx < scan.input.length && scan.input[idx] == ' ' then 
+            internal(idx + 1)
+        else 
+            idx
+    ) 
+    in (scan.input, internal(scan.index), scan.tkn_type, scan.tkn_data)
+);
+
+@private
+const scan_int: scanner -> scanner = L. scanner scan: (
+    let internal: [int, int] -> scanner = L. int num, int idx: (
+        alias c = scan.input[idx] in 
+        if idx < scan.input.length && char_isdigit(c) then 
+            internal(10 * num + c as int - '0' as int, idx + 1)
+        else 
+            (scan.input, idx, ttype.INT, num as any)
+    ) in internal(0, scan.index)
+);
+
+@private
+const scan_literal: scanner -> scanner = L. scanner scan: (
+    let internal: int -> int = L. int idx: (
+        if idx < scan.input.length && char_wchar(scan.input[idx]) then
+            internal(idx + 1)
+        else 
+            idx 
+    ) in 
+    let start = scan.index in 
+    let end   = internal(start) in 
+    (scan.input, end, ttype.LITERAL, scan.input[start to end] as any)
+);
+
+@private 
+const scan_string: scanner -> scanner = L. scanner scan: (
+    let internal: int -> int = L. int idx: (
+        if idx < scan.input.length && scan.input[idx] != '"' then
+            internal(idx + 1) 
+        else 
+            idx
+    ) in 
+    let start = scan.index + 1 in 
+    let end   = internal(start) in 
+    (scan.input, end + 1, ttype.STRING, scan.input[start to end] as any)
+);
+
+const scan_poll: scanner -> scanner = L. scanner sc: (
+    let scan = scan_skipspaces(sc) in 
+
+    if scan.index >= scan.input.length then 
+        (scan.input, scan.index, ttype.EOF, null)
+    else (
+        let c = scan.input[scan.index] in 
+
+        if char_isdigit(c) then 
+            scan_int(scan)
+        else if char_wchar(c) then 
+            scan_literal(scan) 
+        else if c == '"' then
+            scan_string(scan)
+        else if char_symbol(c) then 
+            alias next = scan.input[scan.index + 1] in
+            if scan.index + 1 < scan.input.length && joinsymbols(c, next) then
+                (scan.input, scan.index + 2, ttype.SYMBOL, scan.input[scan.index to scan.index + 2] as any)
+            else 
+                (scan.input, scan.index + 1, ttype.SYMBOL, (c as string) as any)
+        else 
+            (scan.input, scan.input.length, ttype.EOF, null)
+    )
+);
+
+const all: scanner -> list(any) = L. scanner scan: (
+    let new = scan_poll(scan) in
+    
+    if scan_eof(new) then
+        null as list(any)
+    else (
+        new.tkn_data -> all(new)
+    )
+);
