@@ -1,0 +1,55 @@
+include "./ffi.txt";
+ 
+const raylib = ffi_loadlib("./raylib.so");
+
+const InitWindow = L. int width, int height, string title: body { 
+    ffi_callargs (
+        ffi_getsym(raylib, "InitWindow"), 
+        ffi_types.VOID, 
+        width, height, ffi_cstr(title)
+    )
+};
+
+const SetTargetFPS = L. int fps: (
+    ffi_callargs (
+        ffi_getsym(raylib, "SetTargetFPS"),
+        ffi_types.VOID,
+        fps
+    )
+);
+
+@private const x__begin_drawing = ffi_getsym(raylib, "BeginDrawing");
+@private const x__end_drawing = ffi_getsym(raylib, "EndDrawing");
+@private const x__window_should_close = ffi_getsym(raylib, "WindowShouldClose"); 
+@private const x__clearbg = ffi_getsym(raylib, "ClearBackground");
+@private const x__drawfps = ffi_getsym(raylib, "DrawFPS");
+
+const BeginDrawing      = L: ffi_callvoid(x__begin_drawing);
+const EndDrawing        = L: ffi_callvoid(x__end_drawing);
+const WindowShouldClose = L: ffi_callargs(x__window_should_close, ffi_types.BOOL) as bool;
+const ClearBackground   = L. int color: ffi_callargs(x__clearbg, ffi_types.VOID, color);
+
+const DrawFPS = L. int x, int y: (
+    ffi_callargs(x__drawfps, ffi_types.VOID, x, y)
+);
+
+const gameloop: void -> int = L: body {
+    if WindowShouldClose() then 
+        0
+    else body {
+        BeginDrawing(),
+        ClearBackground(\xFFFFFFFF),
+        DrawFPS(10, 3),
+        EndDrawing(), 
+        gameloop()
+    }
+};
+
+const main = L: body {  
+    InitWindow(320, 240, "Hello, Window!"),
+    SetTargetFPS(60),
+    gameloop(),
+    ffi_unloadlib(raylib)
+};
+
+const exec = main();

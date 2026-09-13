@@ -1,0 +1,11 @@
+const concatenate = L. array(string) strings: (
+    let f: [array(string), string, int] -> string = L. array(string) strings, string acc, int index:(
+        if index >= strings.length then 
+            acc
+        else 
+            f(strings, acc .. strings[index], index + 1)
+    ) 
+    in f(strings, null as string, 0)
+);
+
+const test = concatenate(["hello", ", ", "world", "!"]);

@@ -1,0 +1,26 @@
+// this is a working interface that allows foreign function calls.
+// the externals are not accessible by default, you need to compiler the vm with FFI.c and also with libffi
+
+typedef pointer ffi_lib;
+typedef pointer ffi_fn;
+typedef pointer ffi_sym;
+
+typedef enum (
+    VOID = -1,
+    INT  = 0,
+    BOOL = 1,
+    CHAR = 4,
+    POINTER = 3
+) ffi_types;
+
+external ffi_loadlib    : string -> ffi_lib;
+external ffi_unloadlib  : ffi_lib -> int;
+external ffi_getsym     : [ffi_lib, string] -> ffi_sym; 
+
+external ffi_callvoid   : ffi_fn -> int;
+
+// second argument is the return type, use ffi_types for that!
+external ffi_callargs   : [ffi_fn, ffi_types, ..] -> any;
+
+external ffi_cstr       : string -> pointer;
+external ffi_lstr       : pointer -> string;
