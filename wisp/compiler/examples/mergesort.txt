@@ -1,0 +1,34 @@
+const merge: [list int, list int] -> list int = L. list int A, list int B: (
+    if !?A then
+        B 
+    else if !?B then 
+        A
+    else if $A < $B then 
+        $A -> merge(~A, B) 
+    else 
+        $B -> merge(A, ~B)
+);
+
+const top: [list int, list int] -> list int = L. list int slow, list int fast: (
+    // looks like I am censoring something tf
+    if !?fast || !?~fast then 
+        slow 
+    else 
+        top(~slow, ~~fast)
+);
+
+const bot: [list int, list int] -> list int = L. list int slow, list int fast: ( 
+    if !?fast || !?~fast then 
+        null as list(int)
+    else 
+        $slow -> bot(~slow, ~~fast)
+);
+
+const sort: (list int) -> (list int) = L. list int p: (
+    if !?p || !?(~p) then
+        p 
+    else
+        merge( sort(bot(p,p)), sort(top(p,p)) )
+);
+
+const sorted = sort({3, 2, 1, 100, 33, -10, 2});
