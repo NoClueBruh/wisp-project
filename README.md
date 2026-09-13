@@ -99,7 +99,7 @@ Here are the available **comparison** operators:
 * `==`, `!=`, `>=`, `<=`, `>`, `<`
 
 And finally:
-* `?` is a unary operator that checks if a values is NOT `null` (can be used on objects such as tuples, lists, arrays)
+* `?` is a unary operator that checks if a value is NOT `null` (can be used on objects such as tuples, lists, arrays)
 
 ### The trinary operator.
 The only trinary operator in this language is the `if - else` "operator".
@@ -158,7 +158,7 @@ Here is a quick overview on operations that can be done on values:
 
 #### Tuples.
 ```
-// tuples access, index is a static value so there are no runtime checks.
+// tuple access, index is a static value so there are no runtime checks.
   tup.<idx>
 ```
 
@@ -168,7 +168,7 @@ The following are operators but it feels right to write them here.
 // gets the value of the head of the linked list, runtime error if the list is null.
   $lst
 
-// gets the tail of the list, the list after the head.
+// gets the tail of the list, the list after the head, runtime error if the list is null.
   ~lst
 
 // inserts an element at the start of the list
