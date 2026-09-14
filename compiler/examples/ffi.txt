@@ -1,5 +1,5 @@
 // this is a working interface that allows foreign function calls.
-// the externals are not accessible by default, you need to compiler the vm with FFI.c and also with libffi
+// the externals are not accessible by default, you need check FFI.c and also compile with libffi
 
 typedef pointer ffi_lib;
 typedef pointer ffi_fn;
