@@ -395,6 +395,10 @@ const hmm = 'A' as any;
 
 // unwrapping an any value
 const chr = hmm as char;
+
+// when using null.
+// null is of type "any", so you will always need to cast null to use properly!
+const hm = null as array(int);
 ```
 ---
 ### Any/Typeof
