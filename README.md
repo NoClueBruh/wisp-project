@@ -35,7 +35,7 @@ The current language version has the following types:
 * `pointer` (useful outside the language itself)
 * `list <type>`
 * `array <type>`
-* 'any', `struct`, `enum` (mentioned later)
+* `any`, `struct`, `enum` (mentioned later)
 * `(<type0>, <type1>, <type2> ... <typeN>)` (tuple)
 * `<input_type> -> <output_type>` (function)
 * `[<input0>, <input1> ... <inputN>] -> <output_type>` (multi-argument function)
@@ -188,7 +188,7 @@ Here is a quick overview on operations that can be done on values:
 // array slice, does NOT produce a runtime error for out of bounds, it returns null as the array.
 // <index_start> and <index_end> should be of type int.
 // if the value of the start is after the end, the result is null (cannot be used for reversing, at least not yet).
-   arr[ <index_start> to <index_to> ]
+   arr[ <index_start> to <index_end> ]
 ```
 
 #### Strings
@@ -201,7 +201,7 @@ Here is a quick overview on operations that can be done on values:
 // string slice, does NOT produce a runtime error for out of bounds, it returns null as the string.
 // <index_start> and <index_end> should be of type int.
 // if the value of the start is after the end, the result is null (cannot be used for reversing, at least not yet).
-   str[ <index_start> to <index_to> ]
+   str[ <index_start> to <index_end> ]
 ```
 
 #### Tuples
@@ -235,12 +235,12 @@ Here is an example:
 ```
 const x = 10;         // automatically becomes of type int.
 const y:int = 20;     // y has an expected type, the compiler throws an error if the types don't match.
-const z:int = y * 30; // y can be used everywhere below it's declaration!
+const z:int = y * 30; // y can be used everywhere below it's definition!
 ```
 
 Writing the type is very important for recursive functions!
 ```
-// the compiler needs the type of "factorial" because otherwise it wouldn't be able to determine the return value of it's call.
+// the compiler needs the type of "factorial" because otherwise it wouldn't be able to determine the return value when its called.
 // if that happens, the compiler will act like "factorial" isn't fully defined yet, so it will return a "unknown constant" error.
 const factorial: int -> int = L. int n: (
   if n <= 0 then
@@ -256,7 +256,7 @@ You can define local variables inside a function's scope with the following synt
 
 ```
 // simple example where the local variable inherits the type from the value assigned to it.
-L int x: 
+L. int x: 
   let y = 20 in 
      x + y
 
@@ -267,7 +267,7 @@ L. int x:
       x + y + z
 
 // they do not have to be at the top!
-// their value is evaluated when their declaration is reached.
+// their value is evaluated when their definition is reached.
 L. int x:
    if x > 0 then
       let y = 10 * -x in y
@@ -280,8 +280,8 @@ You can also define aliases inside a function's scope:
 ```
 // aliases visually are exactly the same as local variables.
 // the difference is for the runtime, local variables actually take space to hold their value.
-// on the other side, aliases are like a "copy-paste" mechanism which means there is no allocated space at runtime.
-// that of course means that every mention of the alias means compution.
+// aliases are like copy-pasting their expression which means there is no allocated space at runtime.
+// that of course means that every mention of the alias means computation.
 L. int x:
    alias magicnum = 10 * 3 * 2 in
       x + magicnum
@@ -295,6 +295,15 @@ L. (int, int) p:
    alias y = p.1 in
       x + y
 ```
+
+> [!CAUTION]
+> Since aliases copy their expression, there are some cases where using them means more work!
+> ```
+> // in this example, func is called TWICE!
+> L. int x:
+>    alias y = func(x) in
+>       y + y
+> ```
 ---
 ### Typedefs
 Typedefs can be used to refer to a type under a different name.
@@ -314,7 +323,7 @@ const operations: list(operation) = {
 ### Enums
 Enums are very straight forward to use.
 
-They work like C enums, so now runtime overhead, just ints!
+They work like C enums, so there is no runtime overhead, they are just ints!
 ```
 // enums need a typedef to be defined!
 typedef enum (
@@ -337,7 +346,7 @@ typedef enum (
 ```
 ---
 ### Structs
-Structs are almost exactly like tuples, their only difference is that instead of an index, structs have name for their members!
+Structs are almost exactly like tuples, their only difference is that instead of an index, structs have names for their members!
 
 Internally, they are turned into tuples after compilation so still, no overhead!
 
@@ -372,7 +381,7 @@ const getnext = L. struct node(int v, node next) p: p.next;
 ### Casting
 There are a few situations where you may need to cast your values
 ```
-// getting the index of the ascii character
+// getting the index of a ascii character
 const idx = 'A' as int;
 
 // ascii from index
@@ -398,9 +407,7 @@ As mentioned above, every value can be wrapped like so
 value as any
 ```
 
-To check the type of a value you can use the `typeof` instruction.
-
-It works on all types and can be used like so
+To check the type of a value you can use the `typeof` instruction
 ```
 const add = L. any x, any y: (
    if x typeof int && y typeof int then
@@ -411,7 +418,7 @@ const add = L. any x, any y: (
 ```
 
 > [!CAUTION]
-> Unwrapping an any value as the inccorect type leads to a runtime error, so use `typeof` to check the type of the value inside the any!
+> Unwrapping an any value as the incorrect type leads to a runtime error, so use `typeof` before unwrapping!
 ---
 ### Include
 You can very easily include other scripts into your own with a single statement!
@@ -458,11 +465,12 @@ typedef (int, int) vec;
 ---
 ### External functions
 Here is one of the most important features of the language, external functions!
+
 Externals are regular C functions, defined by the VM that can be invoked like regular functions from the language!
 
 Here is a simple example
 ```
-// since functions in this language CANNOT return void, it is common to use an int set to 0 or to an error status. 
+// since functions in this language CANNOT return void, it is common to use an int set to 0 or as a error status. 
 external printstr: string -> int;
 
 const test = printstr("Hello, World!");
@@ -474,13 +482,13 @@ const main = body {
 ```
 
 > [!CAUTION]
-> Since external functions are defined in the VM, this means that some VM implementation may simply not have some functions available!
+> Since external functions are defined in the VM, this means that some implementations may not have the same functions available!
 >
-> Some VM implementation may support file operations, some other may have advanced math operations, some other may have an ffi interface etc.
+> Some VM implementation may support file operations, some other may have advanced math operations, some other may have ffi bindings etc.
 >
 > Trying to call a missing external leads to a runtime error.
 
-( the files include a crude ffi interface using libffi that is commented out, take a look if you are curious )
+( the files include a simple ffi implementation using libffi that is commented out, take a look if you are curious )
 
 ---
 ### Variable Arguments
@@ -511,6 +519,6 @@ Realistically speaking, barely anyone will see this or even use this!
 
 If anyone decides to play with this, make sure to look at the examples at `/compiler/examples`.
 
-The header files are commented \\, the source not so much but I'll work on that!
+The header files are commented, the source not so much but I'll work on that!
 
 Again, feel free to play around with the compiler and the VM, if I got raylib to work on this, imagine the possibilities!
