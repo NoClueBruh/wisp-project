@@ -183,12 +183,15 @@ Here is a quick overview on operations that can be done on values:
 ```
 // array access, leads to a vague runtime error if the index is out of bounds, so do your own checks!
 // <index_expr> should be of type int.
-   arr[ <index_expr> ]
+   arr [ <index_expr> ]
 
 // array slice, does NOT produce a runtime error for out of bounds, it returns null as the array.
 // <index_start> and <index_end> should be of type int.
 // if the value of the start is after the end, the result is null (cannot be used for reversing, at least not yet).
-   arr[ <index_start> to <index_end> ]
+   arr [ <index_start> to <index_end> ]
+
+// the length of the array
+   arr.length
 ```
 
 #### Strings
@@ -202,6 +205,9 @@ Here is a quick overview on operations that can be done on values:
 // <index_start> and <index_end> should be of type int.
 // if the value of the start is after the end, the result is null (cannot be used for reversing, at least not yet).
    str[ <index_start> to <index_end> ]
+
+// the length of the string
+   str.length
 ```
 
 #### Tuples
