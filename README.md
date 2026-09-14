@@ -521,4 +521,4 @@ If anyone decides to play with this, make sure to look at the examples at `/comp
 
 The header files are commented, the source not so much but I'll work on that!
 
-Again, feel free to play around with the compiler and the VM, if I got raylib to work on this, imagine the possibilities!
+Again, feel free to play around with the compiler and the VM!
