@@ -999,18 +999,9 @@ void vm_exec(vm_t* vm) {
             uint16_t fnid = L->value.fnval.fnid;
 
             activeframe_t* top = inpvec_at(&vm->callstack, vm->callstack.len - 1); 
-            int recycle = top->frame->fn == fnid;
-            
-            if(!recycle) { 
-                for(fnframe_t* frame = L->value.fnval.parent; !recycle && frame; frame = frame->parent) {
-                    if(top->frame == frame) {
-                        recycle = 1;
-                    }
-                }
-            }
 
             fnframe_t* fuh = NULL;
-            if(recycle){ 
+            if(top->frame->fn == fnid){ 
                 uint8_t oldvc = vm->funcs[top->frame->fn].vars;
                 uint8_t newvc = vm->funcs[fnid].vars;
 
