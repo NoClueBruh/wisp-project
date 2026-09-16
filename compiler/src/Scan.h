@@ -15,8 +15,6 @@ typedef struct {
     char* pchar;
     char* lchar;
     unsigned int line;
-
-    string_t tmp;
 } scanner_t;
 
 typedef enum {
