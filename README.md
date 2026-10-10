@@ -536,5 +536,5 @@ Again, feel free to play around with the compiler and the VM!
 ## TODO
 If this project does gain some traction, I'd like to do the following:
 
-- Improve the GC either by making the capacity adapt to the program's needs, or replace with another gc model.
+- Improve the GC either by making the capacity adapt to the program's needs, or by replacing with another gc model.
 - Maybe add JIT for hot functions.
