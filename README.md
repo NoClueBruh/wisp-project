@@ -532,3 +532,9 @@ If anyone decides to play with this, make sure to look at the examples at `/comp
 The header files are commented, the source not so much but I'll work on that!
 
 Again, feel free to play around with the compiler and the VM!
+
+## TODO
+If this project does gain some traction, I'd like to do the following:
+
+- Improve the GC either by making the capacity adapt to the program's needs, or replace with another gc model.
+- Maybe add JIT for hot functions.
